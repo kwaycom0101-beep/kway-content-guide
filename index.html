@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KWAY 컨텐츠 가이드 생성기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<style>
+:root{ --purple:#5511bc; --purple-soft:#ede7f6; --hook:#fff3e0; --before:#fbe9e7; --after:#e8f5e9; --line:#e3e3e8; --ink:#1a1a1e; --sub:#6b6b76; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif; color:var(--ink); background:#f6f4fb; line-height:1.6; }
+.wrap{ max-width:1080px; margin:0 auto; padding:0 20px 80px; }
+header{ background:linear-gradient(135deg,#5511bc,#7a3ce0); color:#fff; padding:28px 0 24px; margin-bottom:0; }
+header .wrap{ padding-bottom:0; }
+header h1{ font-size:22px; font-weight:800; letter-spacing:-.5px; }
+header p{ font-size:13px; opacity:.9; margin-top:6px; }
+.layout{ display:grid; grid-template-columns:380px 1fr; gap:24px; margin-top:28px; align-items:start; }
+@media(max-width:880px){ .layout{ grid-template-columns:1fr; } }
+.card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px; }
+.panel{ position:sticky; top:16px; }
+h2{ font-size:15px; font-weight:700; margin-bottom:4px; color:var(--purple); }
+.hint{ font-size:12px; color:var(--sub); margin-bottom:16px; }
+label{ display:block; font-size:13px; font-weight:600; margin:14px 0 6px; }
+label .req{ color:var(--purple); }
+label .tag{ font-size:11px; font-weight:500; color:var(--sub); margin-left:4px; }
+input[type=text],textarea,select{ width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 12px; font-family:inherit; font-size:13px; color:var(--ink); background:#fff; }
+input:focus,textarea:focus,select:focus{ outline:none; border-color:var(--purple); box-shadow:0 0 0 3px rgba(85,17,188,.1); }
+textarea{ resize:vertical; min-height:64px; }
+.row-list .item{ display:flex; gap:6px; margin-bottom:6px; }
+.row-list .item input{ flex:1; }
+.mini{ border:1px solid var(--line); background:#fff; color:var(--sub); border-radius:8px; width:34px; flex:none; cursor:pointer; font-size:16px; }
+.mini:hover{ border-color:var(--purple); color:var(--purple); }
+.addbtn{ font-size:12px; color:var(--purple); background:none; border:none; cursor:pointer; padding:4px 0; font-weight:600; }
+.btns{ margin-top:22px; display:flex; flex-direction:column; gap:8px; }
+button.primary{ background:var(--purple); color:#fff; border:none; border-radius:10px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+button.primary:hover{ background:#4409a3; }
+button.ghost{ background:#fff; color:var(--purple); border:1px solid var(--purple); border-radius:10px; padding:11px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+button.ghost:hover{ background:var(--purple-soft); }
+button:disabled{ opacity:.4; cursor:not-allowed; }
+.results{ display:flex; flex-direction:column; gap:16px; }
+.empty{ text-align:center; color:var(--sub); font-size:14px; padding:80px 20px; }
+.empty .big{ font-size:40px; margin-bottom:12px; }
+.theme{ border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+.theme .th-head{ background:var(--purple); color:#fff; padding:12px 18px; font-size:14px; font-weight:700; }
+.theme .th-head span{ opacity:.75; font-weight:500; font-size:12px; margin-left:6px; }
+.theme .rowx{ display:grid; grid-template-columns:96px 1fr; border-top:1px solid var(--line); }
+.theme .rowx:first-child{ border-top:none; }
+.theme .lab{ padding:12px 14px; font-size:12px; font-weight:700; color:var(--purple); background:var(--purple-soft); display:flex; align-items:center; }
+.theme .val{ padding:12px 16px; font-size:13px; white-space:pre-wrap; }
+.val.hook{ background:var(--hook); font-weight:600; }
+.val.before{ background:var(--before); }
+.val.after{ background:var(--after); }
+.badge{ display:inline-block; font-size:11px; background:var(--purple-soft); color:var(--purple); border-radius:6px; padding:2px 8px; margin-bottom:14px; font-weight:600; }
+.note{ font-size:12px; color:var(--sub); background:#faf8ff; border:1px dashed var(--line); border-radius:10px; padding:12px 14px; margin-top:16px; }
+.filebtn{ position:relative; overflow:hidden; }
+.filebtn input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>KWAY 컨텐츠 가이드 생성기</h1>
+    <p>제품 정보만 넣으면 — 실제로 잘 도는 광고 훅을 학습한 6가지 형식의 콘텐츠 가이드를 자동 생성합니다.</p>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="layout">
+
+  <!-- 입력 패널 -->
+  <div class="card panel">
+    <h2>제품 정보 입력</h2>
+    <div class="hint">별표(<span style="color:#5511bc">*</span>)만 필수입니다. 많이 넣을수록 가이드가 정교해집니다.</div>
+
+    <label>1. 제품명 <span class="req">*</span></label>
+    <input type="text" id="pname" placeholder="예) 볼트론 항균 바스타올 제로수건">
+
+    <label>사이트 주소</label>
+    <input type="text" id="purl" placeholder="예) https://urtowel.com/...">
+
+    <label>카테고리 <span class="req">*</span> <span class="tag">(훅 패턴 학습 기준)</span></label>
+    <select id="pcat"></select>
+
+    <label>2. 제품의 장점 <span class="req">*</span> <span class="tag">(훅의 강한 키 — 최소 1개)</span></label>
+    <div class="row-list" id="prosList"></div>
+    <button class="addbtn" onclick="addRow('prosList','예) 560g 호텔급 중량')">+ 장점 추가</button>
+
+    <label>3. 컨텐츠 차별점 <span class="req">*</span> <span class="tag">(2~3개 권장)</span></label>
+    <div class="row-list" id="diffList"></div>
+    <button class="addbtn" onclick="addRow('diffList','예) 구리원사로 균이 못 살아 → 노워시')">+ 차별점 추가</button>
+
+    <label>소비자 핵심 고민 <span class="tag">(선택 · 있으면 훅 강해짐)</span></label>
+    <input type="text" id="pain" placeholder="예) 빨아도 안 없어지는 수건 쉰내">
+
+    <label>타깃 / 시즌 <span class="tag">(선택)</span></label>
+    <input type="text" id="season" placeholder="예) 장마철, 남편·사춘기 아들 빨래">
+
+    <label>가격 <span class="tag">(선택)</span></label>
+    <input type="text" id="price" placeholder="예) 정가 5만원 → 2.98만원">
+
+    <div class="btns">
+      <button class="primary" onclick="generate()">가이드 생성</button>
+      <button class="ghost" onclick="downloadExcel()" id="xlsxBtn" disabled>📊 엑셀로 내보내기</button>
+      <button class="ghost" onclick="downloadMd()" id="mdBtn" disabled>📄 조건값 마크다운 저장</button>
+      <button class="ghost filebtn">📂 마크다운 불러오기<input type="file" accept=".md" onchange="loadMd(event)"></button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div>
+    <div class="card">
+      <div id="resultHead"></div>
+      <div class="results" id="results">
+        <div class="empty"><div class="big">🪄</div>왼쪽에 제품 정보를 넣고<br><b>가이드 생성</b>을 누르세요.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+/* ============================================================
+   훅 패턴 사전 — 프리덤이 메타 광고 라이브러리를 학습해 주입
+   (하이브리드: 크롤링은 프리덤 담당, 생성은 웹앱 담당)
+   카테고리별로 6형식의 문형·왜먹히나·비포애프터·근거 슬롯을 정의.
+   {{P}}=제품명 {{A1}}~{{A3}}=장점 {{D1}}~{{D3}}=차별점 {{PAIN}}=고민 {{SEASON}}=타깃/시즌 {{PRICE}}=가격 {{CAT}}=카테고리명
+============================================================ */
+const CATEGORIES = {
+  "수건": {
+    label: "수건 / 타월",
+    metaLearned: "메타 광고 29건 학습(2026-07). 실제 잘 도는 훅: '저 집 수건 다 버렸어요', '쉰내 올라온 적 없으세요?', '수건은 완벽한 세균천국', '3만원으로 호텔 욕실', '✔220g ✔흡수 ✔+10cm'. 시장 빈자리=쉰내 원천차단·노워시(아무도 메인으로 안 팖).",
+    themes: [
+      { key:"고백충격형", title:"개인 충격 고백형",
+        metaRef:"'여러분 저 집 수건 다 버렸어요🧖‍♀️' / '이제 다른 수건 못 쓸 것 같아요'",
+        hook:"저 집 {{CAT}} 다 버렸어요. {{P}} 한 번 써보고 이전 걸 다 버렸거든요.\n{{A1}} — 이거 하나 때문에요.",
+        why:"본인이 실제로 '다 버렸다'는 극단 행동 고백이 스크롤을 멈춘다. 메타에서 가장 잘 도는 수건 광고 1번 문형. 장점({{A1}})을 '버릴 만큼 강한 이유'로 제시해 신뢰를 만든다.",
+        science:"근거: 장점을 '내가 직접 겪은 변화'로 서술(과장 금지, 체험 톤). 인증·수치 있으면 자막으로 뒷받침.",
+        before:"비포: 기존 {{CAT}} 쓰며 느낀 불편({{PAIN}}) 리액션 + 서랍의 낡은 것들.",
+        after:"애프터: {{P}}로 교체 후 '{{A1}}' 체감 장면 + '그래서 다 버렸어요' 자막." },
+      { key:"문제공감형", title:"문제 공감 → 원인 폭로형",
+        metaRef:"'요즘 수건에서 쉰내 올라온 적 없으세요..?🥲 손 닦다가 진짜 깜짝 놀랐잖아요'",
+        hook:"{{PAIN}} — 혹시 겪고 계세요?\n빨래를 아무리 열심히 해도 안 없어지죠. 이유가 따로 있었어요.",
+        why:"소비자가 겪는 고민({{PAIN}})을 정확히 호명 → '내 얘기다' 몰입. '열심히 한 게 헛수고였다'는 반전이 강한 후킹. 메타 실제 수건·세제 광고의 핵심 문형.",
+        science:"근거: 문제의 '진짜 원인'을 과학/기사로 폭로 → {{D1}}(으)로 해결. 원인을 먼저 설명해야 해결책이 강해진다.",
+        before:"비포: {{PAIN}} 겪는 리액션 + 사람들이 흔히 하는 헛수고(반복 세탁 등) 몽타주 → '그래도 또'.",
+        after:"애프터: {{D1}} 자막 + '원인 자체가 해결됐다' 메시지." },
+      { key:"위생공포형", title:"위생 공포 자극형",
+        metaRef:"'수건은 욕실의 습기+각질+피지를 흡수해 완벽한 세균천국이라 피부 트러블을 유발'",
+        hook:"매일 얼굴에 대는 {{CAT}}, 사실 세균천국인 거 아세요?\n{{D1}}",
+        why:"'매일 쓰는 것이 사실 더럽다'는 발견형 공포가 클릭률을 높인다. 위생·피부 민감 소비자를 정확히 자극. 저장/공유가 잘 되는 유형.",
+        science:"근거: 위생 리스크를 기사/논문으로 뒷받침(예: 세균 검출·교체주기). 그다음 {{D1}}(으)로 안심 전환.",
+        before:"비포: {{CAT}} 확대 컷 + 세균·곰팡이·교체주기 자막으로 경각심.",
+        after:"애프터: {{P}}의 {{D1}} + 인증 마크로 '이건 안심' 대비." },
+      { key:"실험증명형", title:"소셜프루프 + 실험 증명형",
+        metaRef:"'100만뷰 터졌던 수건 릴스' / '난리난 수건 직접 써봤어요' — 검증 톤",
+        hook:"요즘 난리난 {{P}}, 진짜인지 제가 직접 실험해봤어요.\n{{D2}} — 눈으로 확인시켜 드릴게요.",
+        why:"'남들이 다 산다(소셜프루프)' + '직접 검증한다(실험)'의 결합. 주장이 아니라 데이터로 설득해 신뢰가 가장 높다. 저장·공유 최상.",
+        science:"근거: {{D2}}를 실험 세팅으로 증명(대조군·측정·시간경과). 숫자·before/after가 보이게.",
+        before:"비포: 일반 제품으로 같은 실험 → 한계 노출.",
+        after:"애프터: {{P}}로 같은 조건 실험 → {{D2}} 증명 순간 클로즈업." },
+      { key:"스펙안심형", title:"스펙 나열 + 안심형",
+        metaRef:"'✔220g 호텔급 중량 ✔흡수력 좋아 한 장이면 끝 ✔일반보다 +10cm'",
+        hook:"{{P}} 왜 다른지, 딱 세 줄로 정리했어요.\n✔ {{A1}}\n✔ {{A2}}\n✔ {{A3}}",
+        why:"기본 기대치(품질·스펙)를 체크리스트로 명확히 보여줘 구매 확신을 준다. 메타 수건 광고의 표준 마무리 문형. 정보성이라 캡션 저장률 높음.",
+        science:"근거: 각 장점에 수치·인증을 붙일수록 신뢰↑(예: 중량 g, 인증 등급). 과장 없이 사실만.",
+        before:"비포: 얇고 부실한 일반 제품으로 겪는 불편.",
+        after:"애프터: {{P}}의 {{A1}}/{{A2}}/{{A3}} 각각 클로즈업 + 인증 자막." },
+      { key:"가격재계산형", title:"가격 재계산형 (구매저항 제거)",
+        metaRef:"'3만원으로 호텔 욕실 만들기' / '1장당 3천원대 갓성비 프리미엄'",
+        hook:"{{PRICE}} — 비싸 보이죠?\n그런데 {{D1}} 때문에, 길게 보면 오히려 더 싸요.",
+        why:"'비싸다'는 마지막 구매 저항을 정면으로 재계산. 프리미엄 경험 또는 장기 절감 논리로 전환. 전환 직전 단계의 결정타.",
+        science:"근거: 교체주기·관리비용 절감을 {{D1}}과 연결해 '실질 단가' 재계산(수치는 사실 기준, 과장 금지).",
+        before:"비포: 가격표 보고 망설이는 장면 + 반복 지출/노동.",
+        after:"애프터: {{PRICE}}를 사용기간·절감으로 나눠 '실제로 더 이득' 자막." }
+    ]
+  }
+};
+
+/* ---------- 기본 카테고리 세팅 ---------- */
+const catSel = document.getElementById('pcat');
+Object.entries(CATEGORIES).forEach(([k,v])=>{
+  const o=document.createElement('option'); o.value=k; o.textContent=v.label; catSel.appendChild(o);
+});
+
+function addRow(listId, ph){
+  const list=document.getElementById(listId);
+  const div=document.createElement('div'); div.className='item';
+  div.innerHTML=`<input type="text" placeholder="${ph}"><button class="mini" onclick="this.parentNode.remove()">−</button>`;
+  list.appendChild(div);
+}
+addRow('prosList','예) 560g 호텔급 중량');
+addRow('prosList','예) 한 장으로 머리+몸 (10cm 더 김)');
+addRow('diffList','예) 구리원사로 균이 못 살아 → 노워시');
+addRow('diffList','예) 세탁해도 보풀·먼지 안 생김');
+
+function readRows(listId){
+  return [...document.querySelectorAll(`#${listId} input`)].map(i=>i.value.trim()).filter(Boolean);
+}
+function getInputs(){
+  return {
+    pname:document.getElementById('pname').value.trim(),
+    purl:document.getElementById('purl').value.trim(),
+    cat:document.getElementById('pcat').value,
+    pros:readRows('prosList'),
+    diffs:readRows('diffList'),
+    pain:document.getElementById('pain').value.trim(),
+    season:document.getElementById('season').value.trim(),
+    price:document.getElementById('price').value.trim()
+  };
+}
+
+function fill(tpl, I){
+  const cat=CATEGORIES[I.cat];
+  const map={
+    '{{P}}': I.pname||'(제품명)',
+    '{{CAT}}': cat.label.split(' ')[0],
+    '{{A1}}': I.pros[0]||'(장점1)',
+    '{{A2}}': I.pros[1]||I.pros[0]||'(장점2)',
+    '{{A3}}': I.pros[2]||I.pros[1]||I.pros[0]||'(장점3)',
+    '{{D1}}': I.diffs[0]||'(차별점1)',
+    '{{D2}}': I.diffs[1]||I.diffs[0]||'(차별점2)',
+    '{{D3}}': I.diffs[2]||I.diffs[1]||I.diffs[0]||'(차별점3)',
+    '{{PAIN}}': I.pain||'그 고민',
+    '{{SEASON}}': I.season||'',
+    '{{PRICE}}': I.price||'이 가격'
+  };
+  return tpl.replace(/\{\{[A-Z0-9]+\}\}/g, m=>map[m]!==undefined?map[m]:m);
+}
+
+let LAST=null;
+function buildThemes(I){
+  const cat=CATEGORIES[I.cat];
+  return cat.themes.map((t,i)=>({
+    no:i+1, title:t.title, metaRef:t.metaRef,
+    hook:fill(t.hook,I), why:fill(t.why,I), science:fill(t.science,I),
+    before:fill(t.before,I), after:fill(t.after,I)
+  }));
+}
+
+function validate(I){
+  const miss=[];
+  if(!I.pname) miss.push('제품명');
+  if(!I.pros.length) miss.push('장점(최소 1개)');
+  if(!I.diffs.length) miss.push('차별점(최소 1개)');
+  return miss;
+}
+
+function generate(){
+  const I=getInputs();
+  const miss=validate(I);
+  if(miss.length){ alert('필수 항목을 채워주세요:\n· '+miss.join('\n· ')); return; }
+  const themes=buildThemes(I);
+  LAST={inputs:I, themes};
+  render(I, themes);
+  document.getElementById('xlsxBtn').disabled=false;
+  document.getElementById('mdBtn').disabled=false;
+}
+
+function render(I, themes){
+  const cat=CATEGORIES[I.cat];
+  document.getElementById('resultHead').innerHTML =
+    `<span class="badge">${cat.label} · 6가지 형식</span>
+     <div class="note"><b>훅 학습 출처:</b> ${cat.metaLearned}</div>`;
+  const box=document.getElementById('results');
+  box.innerHTML='';
+  themes.forEach(t=>{
+    const el=document.createElement('div'); el.className='theme';
+    el.innerHTML=`
+      <div class="th-head">주제 ${t.no}. ${t.title}<span>· 참고 실제광고: ${t.metaRef}</span></div>
+      <div class="rowx"><div class="lab">후킹 문구</div><div class="val hook">${esc(t.hook)}</div></div>
+      <div class="rowx"><div class="lab">왜 먹히나</div><div class="val">${esc(t.why)}</div></div>
+      <div class="rowx"><div class="lab">공신력 근거</div><div class="val">${esc(t.science)}</div></div>
+      <div class="rowx"><div class="lab">비포</div><div class="val before">${esc(t.before)}</div></div>
+      <div class="rowx"><div class="lab">애프터</div><div class="val after">${esc(t.after)}</div></div>`;
+    box.appendChild(el);
+  });
+}
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ---------- 엑셀 (데누아 형식) ---------- */
+async function downloadExcel(){
+  if(!LAST) return;
+  const {inputs:I, themes}=LAST;
+  const cat=CATEGORIES[I.cat];
+  const wb=new ExcelJS.Workbook();
+  const P='5511BC', SOFT='EDE7F6', HOOK='FFF3E0', BEF='FBE9E7', AFT='E8F5E9';
+  const fill=(c)=>({type:'pattern',pattern:'solid',fgColor:{argb:'FF'+c}});
+  const border={top:{style:'thin',color:{argb:'FFD0D0D0'}},left:{style:'thin',color:{argb:'FFD0D0D0'}},bottom:{style:'thin',color:{argb:'FFD0D0D0'}},right:{style:'thin',color:{argb:'FFD0D0D0'}}};
+  const wrap={wrapText:true,vertical:'top'};
+
+  // 시트1 훅 주제뱅크
+  const ws=wb.addWorksheet('훅_주제뱅크',{views:[{showGridLines:false}]});
+  ws.columns=[{width:12},{width:70}];
+  let r=1;
+  ws.mergeCells(r,1,r,2);
+  let c=ws.getCell(r,1); c.value=`${I.pname} — 콘텐츠 훅 주제 뱅크`;
+  c.font={name:'맑은 고딕',size:15,bold:true,color:{argb:'FFFFFFFF'}}; c.fill=fill(P); c.alignment={horizontal:'center',vertical:'middle'}; ws.getRow(r).height=30; r++;
+  ws.mergeCells(r,1,r,2);
+  c=ws.getCell(r,1); c.value=`카테고리: ${cat.label}  |  훅 학습: ${cat.metaLearned}`;
+  c.font={name:'맑은 고딕',size:9,color:{argb:'FF5511BC'}}; c.fill=fill(SOFT); c.alignment=wrap; ws.getRow(r).height=48; r++;
+  r++;
+  themes.forEach(t=>{
+    ws.mergeCells(r,1,r,2);
+    c=ws.getCell(r,1); c.value=`주제 ${t.no}.  ${t.title}`;
+    c.font={name:'맑은 고딕',size:12,bold:true,color:{argb:'FFFFFFFF'}}; c.fill=fill(P); c.alignment={vertical:'middle',indent:1}; ws.getRow(r).height=24; r++;
+    const rows=[['후킹 문구',t.hook,HOOK,56],['왜 먹히나',t.why,null,46],['공신력 근거',t.science,SOFT,40],['비포 (Before)',t.before,BEF,42],['애프터 (After)',t.after,AFT,42],['참고 실제광고',t.metaRef,null,30]];
+    rows.forEach(([lab,val,bg,h])=>{
+      const lc=ws.getCell(r,1); lc.value=lab; lc.font={name:'맑은 고딕',size:10,bold:true,color:{argb:'FF5511BC'}}; lc.alignment={horizontal:'center',vertical:'middle',wrapText:true}; lc.border=border; if(bg)lc.fill=fill(bg);
+      const vc=ws.getCell(r,2); vc.value=val; vc.font={name:'맑은 고딕',size:10}; vc.alignment=wrap; vc.border=border; if(bg)vc.fill=fill(bg);
+      ws.getRow(r).height=h; r++;
+    });
+    r++;
+  });
+
+  // 시트2 입력 조건값
+  const ws2=wb.addWorksheet('입력_조건값',{views:[{showGridLines:false}]});
+  ws2.columns=[{width:16},{width:74}];
+  let r2=1;
+  ws2.mergeCells(r2,1,r2,2); let c2=ws2.getCell(r2,1); c2.value='입력 조건값 (재현용)';
+  c2.font={name:'맑은 고딕',size:13,bold:true,color:{argb:'FFFFFFFF'}}; c2.fill=fill(P); c2.alignment={horizontal:'center'}; ws2.getRow(r2).height=26; r2+=2;
+  const kv=[['제품명',I.pname],['사이트',I.purl||'-'],['카테고리',cat.label],['장점', I.pros.map((p,i)=>`${i+1}. ${p}`).join('\n')||'-'],['차별점', I.diffs.map((d,i)=>`${i+1}. ${d}`).join('\n')||'-'],['소비자 고민',I.pain||'-'],['타깃/시즌',I.season||'-'],['가격',I.price||'-']];
+  kv.forEach(([k,v])=>{
+    const kc=ws2.getCell(r2,1); kc.value=k; kc.font={name:'맑은 고딕',size:10,bold:true}; kc.fill=fill(SOFT); kc.alignment={horizontal:'center',vertical:'middle'}; kc.border=border;
+    const vc=ws2.getCell(r2,2); vc.value=v; vc.font={name:'맑은 고딕',size:10}; vc.alignment=wrap; vc.border=border;
+    ws2.getRow(r2).height=Math.max(22, 16*((''+v).split('\n').length)); r2++;
+  });
+
+  const buf=await wb.xlsx.writeBuffer();
+  saveBlob(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), `[KWAY]_${I.pname||'제품'}_콘텐츠가이드.xlsx`);
+}
+
+/* ---------- 조건값 마크다운 (재현성) ---------- */
+function downloadMd(){
+  if(!LAST) return;
+  const I=LAST.inputs;
+  const md=`---
+type: kway-content-guide-input
+version: 1
+---
+# 컨텐츠 가이드 입력 조건값
+
+- 제품명: ${I.pname}
+- 사이트: ${I.purl}
+- 카테고리: ${I.cat}
+- 소비자고민: ${I.pain}
+- 타깃시즌: ${I.season}
+- 가격: ${I.price}
+
+## 장점
+${I.pros.map(p=>'- '+p).join('\n')}
+
+## 차별점
+${I.diffs.map(d=>'- '+d).join('\n')}
+`;
+  saveBlob(new Blob([md],{type:'text/markdown'}), `[KWAY]_${I.pname||'제품'}_조건값.md`);
+}
+
+function loadMd(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=e=>{ applyMd(e.target.result); };
+  rd.readAsText(f);
+}
+function applyMd(txt){
+  const get=(k)=>{ const m=txt.match(new RegExp('- '+k+':\\s*(.*)')); return m?m[1].trim():''; };
+  document.getElementById('pname').value=get('제품명');
+  document.getElementById('purl').value=get('사이트');
+  document.getElementById('pain').value=get('소비자고민');
+  document.getElementById('season').value=get('타깃시즌');
+  document.getElementById('price').value=get('가격');
+  const cat=get('카테고리'); if(CATEGORIES[cat]) document.getElementById('pcat').value=cat;
+  // 리스트 파싱
+  const secList=(head)=>{ const re=new RegExp('## '+head+'\\n([\\s\\S]*?)(\\n##|$)'); const m=txt.match(re); return m? m[1].split('\n').filter(l=>l.startsWith('- ')).map(l=>l.slice(2).trim()):[]; };
+  const pros=secList('장점'), diffs=secList('차별점');
+  document.getElementById('prosList').innerHTML=''; document.getElementById('diffList').innerHTML='';
+  (pros.length?pros:['']).forEach(v=>{ addRow('prosList',''); });
+  (diffs.length?diffs:['']).forEach(v=>{ addRow('diffList',''); });
+  [...document.querySelectorAll('#prosList input')].forEach((el,i)=>el.value=pros[i]||'');
+  [...document.querySelectorAll('#diffList input')].forEach((el,i)=>el.value=diffs[i]||'');
+  alert('조건값을 불러왔습니다. [가이드 생성]을 누르면 동일한 결과가 나옵니다.');
+}
+
+function saveBlob(blob, name){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+</script>
+</body>
+</html>
